@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import * as XLSX from 'xlsx';
 import { EXAMPLE_INPUT, MAX_XLSX_ROWS, generateImeis } from './imei.js';
 import {
@@ -36,11 +36,12 @@ describe('Excel 97–2003 活頁簿', () => {
     expect(parsed.Sheets.Sheet1.A1.z).toBe('@');
   });
 
-  it('400 筆輸出內容逐格符合新版 XLSX 範例檔', () => {
-    const examplePath = new URL(
-      '../example/AW-BM497SM_XT8816_400pcs_190930.xlsx',
-      import.meta.url,
-    );
+  // 範例檔不入版控（.gitignore 排除 example/），CI 上自動跳過
+  const examplePath = new URL(
+    '../example/AW-BM497SM_XT8816_400pcs_190930.xlsx',
+    import.meta.url,
+  );
+  it.skipIf(!existsSync(examplePath))('400 筆輸出內容逐格符合新版 XLSX 範例檔', () => {
     const example = XLSX.read(readFileSync(examplePath), { cellStyles: true });
     const generated = XLSX.read(
       serializeImeiWorkbook(
