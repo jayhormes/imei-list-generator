@@ -1,0 +1,27 @@
+{
+  "name": "imei-list-generator",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "serve:dist": "vite preview --host 127.0.0.1",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "4.1.10",
+    "jsdom": "29.0.1",
+    "vite": "8.2.1",
+    "vitest": "4.1.10"
+  },
+  "engines": {
+    "node": ">=22.12"
+  }
+}

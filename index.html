@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="輸入 14 碼 IMEI 主體，在瀏覽器中計算 Luhn 查驗碼並產生 .xlsx IMEI 列表。"
+    />
+    <meta name="theme-color" content="#102a2d" />
+    <title>IMEI List Generator</title>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-header">
+        <a class="brand" href="./" aria-label="IMEI List Generator 首頁">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span>IMEI / LIST</span>
+        </a>
+        <div class="privacy-pill">
+          <span class="status-dot" aria-hidden="true"></span>
+          純瀏覽器處理・資料不上傳
+        </div>
+      </header>
+
+      <main>
+        <section class="hero" aria-labelledby="page-title">
+          <div class="eyebrow"><span>01</span> PRODUCTION UTILITY</div>
+          <h1 id="page-title">建立可驗證的<br /><em>IMEI 批次列表</em></h1>
+          <p>
+            輸入生產資訊與不含查驗碼的 14 碼 IMEI 範圍，系統會逐筆計算 Luhn 查驗碼，
+            並產生與既有流程相容的 Excel `.xlsx` 檔案。
+          </p>
+          <div class="hero-stats" aria-label="工具特點">
+            <div><strong>14+1</strong><span>主體與查驗碼</span></div>
+            <div><strong>Luhn</strong><span>查驗碼計算</span></div>
+            <div><strong>.xlsx</strong><span>範例相容格式</span></div>
+          </div>
+        </section>
+
+        <section class="workspace" aria-label="IMEI 列表建立工具">
+          <div class="form-panel">
+            <div class="section-heading">
+              <div>
+                <span class="section-number">01 / INPUT</span>
+                <h2>生產批次資料</h2>
+              </div>
+              <button class="text-button" id="fill-example" type="button">帶入範例</button>
+            </div>
+
+            <form id="imei-form" novalidate>
+              <div class="field-grid">
+                <div class="field">
+                  <label for="project-code">專案代號</label>
+                  <input
+                    id="project-code"
+                    name="projectCode"
+                    type="text"
+                    placeholder="AW-BM497SM"
+                    maxlength="50"
+                    autocomplete="off"
+                    aria-describedby="project-code-help project-code-error"
+                  />
+                  <span class="field-help" id="project-code-help">用於輸出檔名</span>
+                  <span class="field-error" id="project-code-error"></span>
+                </div>
+
+                <div class="field">
+                  <label for="ic-code">IC 代號</label>
+                  <input
+                    id="ic-code"
+                    name="icCode"
+                    type="text"
+                    placeholder="XT8816"
+                    maxlength="50"
+                    autocomplete="off"
+                    aria-describedby="ic-code-help ic-code-error"
+                  />
+                  <span class="field-help" id="ic-code-help">英數、連字號、底線或小數點</span>
+                  <span class="field-error" id="ic-code-error"></span>
+                </div>
+
+                <div class="field field-wide">
+                  <label for="tac">TAC</label>
+                  <div class="input-with-badge">
+                    <input
+                      id="tac"
+                      name="tac"
+                      type="text"
+                      inputmode="numeric"
+                      placeholder="86768903"
+                      maxlength="8"
+                      autocomplete="off"
+                      aria-describedby="tac-help tac-error"
+                    />
+                    <span>8 DIGITS</span>
+                  </div>
+                  <span class="field-help" id="tac-help">必須與起始及結尾 IMEI 的前 8 碼相同</span>
+                  <span class="field-error" id="tac-error"></span>
+                </div>
+
+                <div class="field field-wide imei-field">
+                  <label for="start-imei">起始 IMEI（前 14 碼）</label>
+                  <input
+                    id="start-imei"
+                    name="startImei"
+                    type="text"
+                    inputmode="numeric"
+                    placeholder="86768903017588"
+                    maxlength="14"
+                    autocomplete="off"
+                    aria-describedby="start-imei-help start-imei-error"
+                  />
+                  <span class="field-help" id="start-imei-help">只輸入 14 碼主體，請勿輸入查驗碼</span>
+                  <span class="field-error" id="start-imei-error"></span>
+                </div>
+
+                <div class="field field-wide imei-field">
+                  <label for="end-imei">結尾 IMEI（前 14 碼）</label>
+                  <input
+                    id="end-imei"
+                    name="endImei"
+                    type="text"
+                    inputmode="numeric"
+                    placeholder="86768903017987"
+                    maxlength="14"
+                    autocomplete="off"
+                    aria-describedby="end-imei-help end-imei-error"
+                  />
+                  <span class="field-help" id="end-imei-help">只輸入 14 碼主體，必須大於或等於起始值</span>
+                  <span class="field-error" id="end-imei-error"></span>
+                </div>
+
+                <div class="field field-wide">
+                  <label for="quantity">數量</label>
+                  <div class="input-with-suffix">
+                    <input
+                      id="quantity"
+                      name="quantity"
+                      type="number"
+                      inputmode="numeric"
+                      placeholder="400"
+                      min="1"
+                      max="1048576"
+                      step="1"
+                      autocomplete="off"
+                      aria-describedby="quantity-help quantity-error"
+                    />
+                    <span>PCS</span>
+                  </div>
+                  <span class="field-help" id="quantity-help">由起訖序號推算，單一工作表上限 1,048,576 筆</span>
+                  <span class="field-error" id="quantity-error"></span>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button class="primary-button" id="generate-button" type="submit" disabled>
+                  <span>驗證並下載 .xlsx</span>
+                  <span class="button-arrow" aria-hidden="true">↗</span>
+                </button>
+                <button class="secondary-button" id="clear-form" type="button">清除</button>
+              </div>
+              <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
+            </form>
+          </div>
+
+          <aside class="preview-panel" aria-labelledby="preview-title">
+            <div class="section-heading preview-heading">
+              <div>
+                <span class="section-number">02 / VERIFY</span>
+                <h2 id="preview-title">輸出預覽</h2>
+              </div>
+              <span class="validity-badge" id="validity-badge">等待輸入</span>
+            </div>
+
+            <div class="empty-preview" id="empty-preview">
+              <div class="empty-graphic" aria-hidden="true">
+                <span></span><span></span><span></span><span></span>
+              </div>
+              <h3>尚未建立預覽</h3>
+              <p>完成左側欄位後，這裡會顯示檔名、筆數與 IMEI 抽樣。</p>
+            </div>
+
+            <div class="preview-content" id="preview-content" hidden>
+              <dl class="summary-grid">
+                <div>
+                  <dt>總筆數</dt>
+                  <dd id="summary-quantity">—</dd>
+                </div>
+                <div>
+                  <dt>有效範圍</dt>
+                  <dd id="summary-range">—</dd>
+                </div>
+                <div class="summary-filename">
+                  <dt>下載檔名</dt>
+                  <dd id="summary-filename">—</dd>
+                </div>
+              </dl>
+
+              <div class="sheet-preview">
+                <div class="sheet-toolbar">
+                  <span><i></i> Sheet1</span>
+                  <span>欄 A・文字格式</span>
+                </div>
+                <ol class="preview-rows" id="preview-rows"></ol>
+              </div>
+
+              <div class="check-note">
+                <span aria-hidden="true">✓</span>
+                <p><strong>驗證完成</strong>起訖 14 碼、TAC 與數量一致，每筆查驗碼已計算完成。</p>
+              </div>
+            </div>
+          </aside>
+        </section>
+
+        <section class="rules" aria-labelledby="rules-title">
+          <div>
+            <span class="section-number">03 / RULES</span>
+            <h2 id="rules-title">產生規則</h2>
+          </div>
+          <div class="rule-list">
+            <article>
+              <span>01</span>
+              <h3>遞增主體</h3>
+              <p>起始與結尾都只需輸入 IMEI 前 14 碼，系統會依序遞增這 14 碼主體。</p>
+            </article>
+            <article>
+              <span>02</span>
+              <h3>計算查驗碼</h3>
+              <p>每筆資料都依 Luhn 演算法計算第 15 碼，輸出完整且有效的 IMEI。</p>
+            </article>
+            <article>
+              <span>03</span>
+              <h3>交叉核對</h3>
+              <p>起訖範圍推算的筆數必須與輸入數量相同，TAC 也必須一致。</p>
+            </article>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <span>IMEI LIST GENERATOR</span>
+        <p>Static utility · No server required</p>
+      </footer>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
